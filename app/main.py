@@ -47,6 +47,11 @@ else:
     print("No IPv6 addresses found.")
     sys.exit()
 
+if os.path.exists("addressBook") == False:
+    os.mkdir("addressBook")
+if os.path.exists("output") == False:
+    os.mkdir("output")
+
 if not os.path.exists("user.zip"):
         username = str(simpledialog.askstring("Input", "请输入用户名："))
         if username == "None" or username == "":
