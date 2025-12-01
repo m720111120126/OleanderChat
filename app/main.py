@@ -55,12 +55,16 @@ if os.path.exists(os.path.join(myself_path, "addressBook")) == False:
 if os.path.exists(os.path.join(myself_path, "output")) == False:
     os.mkdir(os.path.join(myself_path, "output"))
 
+temp_window = tk.Tk()
+temp_window.withdraw()
 if not os.path.exists(os.path.join(myself_path, "user.zip")):
         username = str(simpledialog.askstring("Input", "请输入用户名："))
         if username == "None" or username == "":
+            temp_window.destroy()
             sys.exit(0)
         password = str(simpledialog.askstring("Input", "请输入密码："))
         if password == "None" or password == "":
+            temp_window.destroy()
             sys.exit(0)
         public_key, private_key, name, user_id = user.create_user(username, password)
 else:
@@ -68,8 +72,10 @@ else:
     while not right:
         password = str(simpledialog.askstring("Input", "请输入密码："))
         if password == "None" or password == "":
+            temp_window.destroy()
             sys.exit(0)
         right, public_key, private_key, name, user_id = user.login_user(password)
+temp_window.destroy()
 
 payload = {
     "uuid": user_id, # pyright: ignore[reportPossiblyUnboundVariable]
