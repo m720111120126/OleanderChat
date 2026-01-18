@@ -20,7 +20,7 @@ from tkinter import filedialog
 
 try:
     json_data = json.dumps(connect.payload).encode('utf-8')
-    req = urllib.request.Request("https://xn--jzh-k69dm57c4fd.xyz/ipv6_allocator.php", data=json_data, headers={'Content-Type': 'application/json'}, method='POST')
+    req = urllib.request.Request("https://www.123h.top/ipv6_allocator.php", data=json_data, headers={'Content-Type': 'application/json'}, method='POST')
     urllib.request.urlopen(req, context=context)
 except urllib.error.URLError as e:
     messagebox.showerror("错误", f"网络请求失败: {e}")
@@ -104,6 +104,7 @@ def send_heartbeat(host, port, name):
 
 class WeChatUI:
     def __init__(self, root):
+        messagebox.showwarning("警告", "严禁利用本软件从事违法犯罪活动")
         self.root = root
         self.root.title("Oleander Chat")
         self.root.geometry("1200x700")
@@ -137,6 +138,8 @@ class WeChatUI:
         self.friend_listbox.bind("<Button-3>", self.show_context_menu)
         self.friend_listbox.bind("<Button-2>", self.show_context_menu)
         for friend in connect.friends.values():
+            if friend["name"] not in firends_online:
+                firends_online[friend["name"]] = {"oline": False, "user_id": friend["user_id"], "host": None}
             self.friend_listbox.insert("", "end", text=friend["name"], values=("在线" if firends_online[friend["name"]]["oline"] else "离线",))
         chat_frame = ttk.Frame(main_frame)
         chat_frame.pack(side=RIGHT, fill=BOTH, expand=YES)
@@ -209,7 +212,8 @@ class WeChatUI:
                 "file": f"{time.time()}.zip"
             }
             connect.chat_record[name] = []
-            self.friend_listbox.insert("", "end", text=name)
+            firends_online[name] = {"oline": False, "user_id": user_id, "host": None}
+            self.friend_listbox.insert("", "end", text=name, values=("离线",))
 
     def remove_friend(self):
         """删除好友"""
@@ -232,6 +236,12 @@ class WeChatUI:
             firends_online[friend_name]["oline"] = send_heartbeat(firends_online[friend_name]["host"], 19043, friend_name)
             if not firends_online[friend_name]["oline"]:
                 messagebox.showerror("错误", "好友不在线")
+                self.chat_title.config(text=f"{friend_name} (离线)")
+                self.chat_text.config(state=NORMAL) # pyright: ignore[reportArgumentType]
+                self.chat_text.delete(1.0, END)
+                self.chat_text.config(state=DISABLED) # pyright: ignore[reportArgumentType]
+                for msg in connect.chat_record[friend_name]:
+                    self.display_message(msg)
                 return
             self.chat_title.config(text=f"{friend_name}")
             self.chat_text.config(state=NORMAL) # pyright: ignore[reportArgumentType]
@@ -342,7 +352,7 @@ def main():
         user_id = friend["user_id"]
         if not friend["host"]:
             try:
-                url = f"https://xn--jzh-k69dm57c4fd.xyz/ipv6_query.php?uuid={user_id}"
+                url = f"https://www.123h.top/ipv6_query.php?uuid={user_id}"
                 response = urllib.request.urlopen(url, timeout=10, context=context)
                 content = response.read()
                 host = json.loads(content.decode('utf-8'))["ipv6_address"]

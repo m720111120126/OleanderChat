@@ -77,7 +77,7 @@ OleanderChat/
   - pyzipper
   - ttkbootstrap
   - tkinter (通常随Python安装)
-- （可选）如果您自己搭建了服务器，请将`https://xn--jzh-k69dm57c4fd.xyz` 替换为您的服务器地址
+- （可选）如果您自己搭建了服务器，请将`https://www.123h.top` 替换为您的服务器地址
 
 ### 安装依赖
 
@@ -143,6 +143,7 @@ pip install pycryptodome pyzipper ttkbootstrap
 - 好友添加需要对方的公开信息文件（`me.zip`）
 - 如果您的修改可以兼容原版OleanderChat，务必允许用户自主选择服务器（包括自建服务器和官方服务器）。
 - 如果您的修改无法兼容原版OleanderChat，请务必使用您自己搭建的服务器
+- 在中国使用本软件需遵守中国法律法规，禁止用于非法用途
 
 ## 安全性
 

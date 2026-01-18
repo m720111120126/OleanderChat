@@ -202,7 +202,7 @@ def send_message(user_id, public_key, message_str, port=19042):
     host = ""
     try:
         # 获取接收方的IPv6地址
-        url = f"https://xn--jzh-k69dm57c4fd.xyz/ipv6_query.php?uuid={user_id}"
+        url = f"https://www.123h.top/ipv6_query.php?uuid={user_id}"
         response = urllib.request.urlopen(url, timeout=10, context=context)
         content = response.read()
         host = json.loads(content.decode('utf-8'))["ipv6_address"]
