@@ -37,12 +37,13 @@ else:
 
 temp_window = tk.Tk()
 temp_window.withdraw()
+messagebox.showwarning("警告", "严禁利用本软件从事违法犯罪活动")
 if not os.path.exists(os.path.join(myself_path, "user.zip")):
         username = str(simpledialog.askstring("Input", "请输入用户名："))
         if username == "None" or username == "":
             temp_window.destroy()
             sys.exit(0)
-        password = str(simpledialog.askstring("Input", "请输入密码："))
+        password = str(simpledialog.askstring("Input", "请输入密码：", show='*'))
         if password == "None" or password == "":
             temp_window.destroy()
             sys.exit(0)
@@ -50,11 +51,13 @@ if not os.path.exists(os.path.join(myself_path, "user.zip")):
 else:
     right = False
     while not right:
-        password = str(simpledialog.askstring("Input", "请输入密码："))
+        password = str(simpledialog.askstring("Input", "请输入密码：", show='*'))
         if password == "None" or password == "":
             temp_window.destroy()
             sys.exit(0)
         right, public_key, private_key, name, user_id = user.login_user(password)
+        if not right:
+            messagebox.showerror("错误", "密码错误，请重新输入。")
 temp_window.destroy()
 
 payload = {
@@ -217,7 +220,7 @@ def send_message(user_id, public_key, message_str, port=19042):
             s.connect((host, port))
             
             # 简化的长消息发送：直接发送加密后的完整消息
-            message_data = {"message": message_str, "name": name}
+            message_data = {"message": message_str, "name": name, "to": user_id}
             message_json = json.dumps(message_data)
             
             # 加密消息

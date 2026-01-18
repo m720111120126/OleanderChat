@@ -104,7 +104,6 @@ def send_heartbeat(host, port, name):
 
 class WeChatUI:
     def __init__(self, root):
-        messagebox.showwarning("警告", "严禁利用本软件从事违法犯罪活动")
         self.root = root
         self.root.title("Oleander Chat")
         self.root.geometry("1200x700")
@@ -138,8 +137,6 @@ class WeChatUI:
         self.friend_listbox.bind("<Button-3>", self.show_context_menu)
         self.friend_listbox.bind("<Button-2>", self.show_context_menu)
         for friend in connect.friends.values():
-            if friend["name"] not in firends_online:
-                firends_online[friend["name"]] = {"oline": False, "user_id": friend["user_id"], "host": None}
             self.friend_listbox.insert("", "end", text=friend["name"], values=("在线" if firends_online[friend["name"]]["oline"] else "离线",))
         chat_frame = ttk.Frame(main_frame)
         chat_frame.pack(side=RIGHT, fill=BOTH, expand=YES)
@@ -212,8 +209,7 @@ class WeChatUI:
                 "file": f"{time.time()}.zip"
             }
             connect.chat_record[name] = []
-            firends_online[name] = {"oline": False, "user_id": user_id, "host": None}
-            self.friend_listbox.insert("", "end", text=name, values=("离线",))
+            self.friend_listbox.insert("", "end", text=name)
 
     def remove_friend(self):
         """删除好友"""
@@ -236,12 +232,6 @@ class WeChatUI:
             firends_online[friend_name]["oline"] = send_heartbeat(firends_online[friend_name]["host"], 19043, friend_name)
             if not firends_online[friend_name]["oline"]:
                 messagebox.showerror("错误", "好友不在线")
-                self.chat_title.config(text=f"{friend_name} (离线)")
-                self.chat_text.config(state=NORMAL) # pyright: ignore[reportArgumentType]
-                self.chat_text.delete(1.0, END)
-                self.chat_text.config(state=DISABLED) # pyright: ignore[reportArgumentType]
-                for msg in connect.chat_record[friend_name]:
-                    self.display_message(msg)
                 return
             self.chat_title.config(text=f"{friend_name}")
             self.chat_text.config(state=NORMAL) # pyright: ignore[reportArgumentType]

@@ -1,15 +1,9 @@
-import os.path, pyzipper, psutil, base64, urllib.request, json, sys
-from Crypto.PublicKey import RSA, ECC
-from Crypto.Cipher import PKCS1_OAEP, AES
+import os.path, pyzipper, os, base64, urllib.request, json, sys
+from Crypto.PublicKey import ECC
+from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
-from Crypto.Util.Padding import pad, unpad
-from Crypto.Signature import DSS
-from Crypto.Hash import SHA256
 
-try:
-    root_path = sys.argv[1]
-except:
-    root_path = os.path.dirname(psutil.Process().exe())
+root_path = os.path.dirname(sys.argv[0])
 print(f"Root path: {root_path}")
 output_dir = os.path.join(root_path, "output")
 
