@@ -1,5 +1,5 @@
 import socket, user, os, urllib.request, json, urllib.error, sys, time
-import ssl, random, base64
+import random, base64
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import ECC
 from Crypto.Signature import DSS
@@ -8,9 +8,6 @@ import tkinter as tk
 from tkinter import simpledialog
 
 myself_path = user.root_path
-context = ssl.create_default_context()
-context.check_hostname = True
-context.verify_mode = ssl.CERT_REQUIRED
 
 def get_ipv6_addresses():
     ipv6_addresses = []
@@ -205,8 +202,8 @@ def send_message(user_id, public_key, message_str, port=19042):
     host = ""
     try:
         # 获取接收方的IPv6地址
-        url = f"https://www.123h.top/ipv6_query.php?uuid={user_id}"
-        response = urllib.request.urlopen(url, timeout=10, context=context)
+        url = f"https://oleanderchat.asia/ipv6_query.php?uuid={user_id}"
+        response = urllib.request.urlopen(url, timeout=10)
         content = response.read()
         host = json.loads(content.decode('utf-8'))["ipv6_address"]
     except Exception as e:

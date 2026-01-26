@@ -86,7 +86,7 @@ def create_user(name: str, password: str):
     key = ECC.generate(curve='P-256')
     private_key = key.export_key(format='PEM')
     public_key = key.public_key().export_key(format='PEM')
-    url = "https://www.123h.top/id_allocator.php"
+    url = "https://oleanderchat.asia/id_allocator.php"
     response = urllib.request.urlopen(url)
     content = response.read()
     user_id = json.loads(content.decode('utf-8'))["id"]

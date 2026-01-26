@@ -77,7 +77,7 @@ OleanderChat/
   - pyzipper
   - ttkbootstrap
   - tkinter (通常随Python安装)
-- （可选）如果您自己搭建了服务器，请将`https://www.123h.top` 替换为您的服务器地址
+- （可选）如果您自己搭建了服务器，请将`https://oleanderchat.asia` 替换为您的服务器地址
 
 ### 安装依赖
 
@@ -89,7 +89,7 @@ pip install pycryptodome pyzipper ttkbootstrap
 
 1. 将 `server/` 目录下的PHP文件部署到支持PHP的Web服务器
 2. 创建MySQL数据库并配置以下表：
-   - `ids` 表：包含 `last_allocated_id` 字段用于ID分配
+   - `id_sequence` 表：用于ID分配，包含 `id` 字段自动递增
    - `ipv6_records` 表：包含 `uuid` 和 `ipv6_address` 字段
 3. 修改PHP文件中的数据库连接参数
 
@@ -97,9 +97,8 @@ pip install pycryptodome pyzipper ttkbootstrap
   ```sql
   USE 你的数据库名称;
 
-  CREATE TABLE ids (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    last_allocated_id INT NOT NULL DEFAULT 0
+  CREATE TABLE id_sequence (
+    id INT AUTO_INCREMENT PRIMARY KEY
   );
 
   INSERT INTO ids (last_allocated_id) VALUES (0);

@@ -1,9 +1,6 @@
 import socket, threading, shutil, time, queue, sys, user, os, urllib.request, json, urllib.error
-import ssl, base64
+import base64
 
-context = ssl.create_default_context()
-context.check_hostname = True
-context.verify_mode = ssl.CERT_REQUIRED
 myself_path = user.root_path
 if os.path.exists(os.path.join(myself_path, "addressBook")) == False:
     os.mkdir(os.path.join(myself_path, "addressBook"))
@@ -20,8 +17,8 @@ from tkinter import filedialog
 
 try:
     json_data = json.dumps(connect.payload).encode('utf-8')
-    req = urllib.request.Request("https://www.123h.top/ipv6_allocator.php", data=json_data, headers={'Content-Type': 'application/json'}, method='POST')
-    urllib.request.urlopen(req, context=context)
+    req = urllib.request.Request("https://oleanderchat.asia/ipv6_allocator.php", data=json_data, headers={'Content-Type': 'application/json'}, method='POST')
+    urllib.request.urlopen(req)
 except urllib.error.URLError as e:
     messagebox.showerror("错误", f"网络请求失败: {e}")
     print(f"网络请求失败: {e}")
@@ -342,8 +339,8 @@ def main():
         user_id = friend["user_id"]
         if not friend["host"]:
             try:
-                url = f"https://www.123h.top/ipv6_query.php?uuid={user_id}"
-                response = urllib.request.urlopen(url, timeout=10, context=context)
+                url = f"https://oleanderchat.asia/ipv6_query.php?uuid={user_id}"
+                response = urllib.request.urlopen(url, timeout=10)
                 content = response.read()
                 host = json.loads(content.decode('utf-8'))["ipv6_address"]
             except urllib.error.URLError as e:
