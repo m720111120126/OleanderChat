@@ -99,12 +99,13 @@ def send_heartbeat(host, port, name):
     ui.update_friend_status(name, "离线")
     return False
 
-class WeChatUI:
+class OleanderChatUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Oleander Chat")
         self.root.geometry("1200x700")
-        self.custom_font = tkfont.Font(family="微软雅黑", size=10)
+        self.custom_font = tkfont.nametofont("TkDefaultFont")  # 使用系统默认字体
+        self.custom_font.configure(size=10)
         self.setup_ui()
     def setup_ui(self):
         main_frame = ttk.Frame(self.root)
@@ -169,9 +170,9 @@ class WeChatUI:
         self.message_input.pack(fill=X, padx=10, pady=5)
         send_btn_file = ttk.Button(
             input_frame, 
-            text="发送文件", 
+            text="更多操作", 
             bootstyle="success-outline",
-            command=self.send_file
+            command=self.more
         )
         send_btn_file.pack(side=RIGHT, padx=10, pady=5)
         send_btn = ttk.Button(
@@ -184,6 +185,16 @@ class WeChatUI:
         self.friend_listbox.bind("<<TreeviewSelect>>", self.on_friend_select)
         self.message_input.bind("<Return>", self.send_message_on_enter)
     
+    def more(self):
+        """更多操作菜单"""
+        more_menu = tk.Menu(self.root, tearoff=0)
+        more_menu.add_command(label="发送文件", command=self.send_file)
+        more_menu.add_command(label="推送好友", command=self.send_friend)
+        try:
+            more_menu.tk_popup(self.root.winfo_pointerx(), self.root.winfo_pointery())
+        finally:
+            more_menu.grab_release()
+
     def show_context_menu(self, event):
             """在鼠标位置显示右键菜单"""
             try:
@@ -301,6 +312,87 @@ class WeChatUI:
             except Exception as e:
                 messagebox.showerror("发送失败", f"文件发送失败，可能对方不在线")
                 messagebox.showerror("发送失败", str(e))
+    
+    def send_friend(self):
+        selection = self.friend_listbox.selection()
+        if not selection:
+            messagebox.showerror("错误", "请先选择一个好友")
+            return
+        this_friend = None
+        for key in connect.friends.keys():
+            if connect.friends[key]["name"] == self.friend_listbox.item(self.friend_listbox.selection()[0])["text"]:
+                this_friend = connect.friends[key]
+        if not this_friend:
+            messagebox.showerror("错误", "未找到好友信息")
+            return
+        friend_choose = tk.Tk()
+        friend_choose.title("推送好友")
+        friend_choose.geometry("300x150")
+        friend_choose.resizable(False, False)
+        friend_choose.transient(self.root)
+        friend_choose.grab_set()
+        friend_choose.focus_set()
+        ttk.Label(friend_choose, text="选择要推送的好友:", font=self.custom_font).pack(pady=10)
+        # 创建好友列表框
+        friend_list = ttk.Treeview(friend_choose, height=8, show='tree', selectmode='browse')
+        scrollbar = ttk.Scrollbar(friend_choose, orient=tk.VERTICAL, command=friend_list.yview)
+        friend_list.configure(yscrollcommand=scrollbar.set)
+        # 添加好友到列表（排除当前选中的好友）
+        current_selected_name = self.friend_listbox.item(self.friend_listbox.selection()[0])["text"]
+        for friend_id, friend_info in connect.friends.items():
+            if friend_info["name"] != current_selected_name:  # 不包含当前选中的好友
+                friend_list.insert("", "end", text=friend_info["name"], values=(friend_id,))
+    
+        friend_list.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(10, 0), pady=10)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y, padx=(0, 10), pady=10)
+        # 确认按钮回调函数
+        def confirm_friend_selection():
+            selected_item = friend_list.selection()
+            if not selected_item:
+                messagebox.showwarning("警告", "请选择一个好友")
+                return
+            selected_friend_name = friend_list.item(selected_item[0])["text"]
+            selected_friend_id = None
+            # 根据选择的名称查找好友ID
+            for friend_id, friend_info in connect.friends.items():
+                if friend_info["name"] == selected_friend_name:
+                    selected_friend_id = friend_info["user_id"]
+                    break
+            if selected_friend_id:
+                # 这里可以实现推送好友的具体逻辑
+                # 目前只是显示所选好友的信息
+                messagebox.showinfo("推送好友", f"您选择了推送好友: {selected_friend_name}\n好友ID: {selected_friend_id}")
+                # 实际的推送好友功能应该在这里实现
+                # 可能需要通过网络发送包含好友信息的消息给当前选中的好友
+                try:
+                    # 构建要推送的好友信息
+                    friend_to_send = connect.friends[selected_friend_id]
+                    friend_info_to_send = {
+                        "name": friend_to_send["name"],
+                        "user_id": friend_to_send["user_id"],
+                        "public_key": friend_to_send["public_key"]
+                    }
+                    messagebox.showinfo("成功", f"已将好友 {selected_friend_name} 推送给 {this_friend['name']}")
+                    with open(os.path.join(myself_path, "addressBook", f"{connect.friends[friend_to_send['user_id']]["file"]}"), "rb") as f:
+                        file_data = base64.b64encode(f.read()).decode('utf-8')
+                    message = f"{file_data} card(friend) {friend_info_to_send['name']}"
+                    connect.send_message(this_friend["user_id"], this_friend["public_key"], message)
+                    self.display_card("我: "+message)
+                    connect.chat_record[this_friend["name"]].append("我: "+message)
+                    friend_choose.destroy()
+                except Exception as e:
+                    messagebox.showerror("错误", f"推送好友失败: {str(e)}")
+            else:
+                messagebox.showerror("错误", "无法获取所选好友的ID")
+        # 添加确认按钮
+        confirm_btn = ttk.Button(friend_choose, text="确认推送", bootstyle="success", command=confirm_friend_selection)
+        confirm_btn.pack(pady=10)
+        # 居中显示窗口
+        friend_choose.update_idletasks()
+        x = self.root.winfo_x() + (self.root.winfo_width() // 2) - (friend_choose.winfo_width() // 2)
+        y = self.root.winfo_y() + (self.root.winfo_height() // 2) - (friend_choose.winfo_height() // 2)
+        friend_choose.geometry(f"+{x}+{y}")
+        friend_choose.wait_window()
 
     def send_message_on_enter(self, event):
         """回车发送消息"""
@@ -330,6 +422,16 @@ class WeChatUI:
                 with open(filedialog.asksaveasfilename(title="保存文件为:", initialfile=message.split(" card(file) ")[1]), "wb") as f:
                     f.write(base64.b64decode(file.split(": ")[1]))
             self.chat_text.tag_bind("url", "<Button-1>", lambda e, f=file: download_file(f))
+            self.chat_text.see(END)
+            self.chat_text.config(state=DISABLED) # pyright: ignore[reportArgumentType]
+        elif "card(friend)" in message:
+            friend = message.split(" card(friend) ")[1]
+            self.chat_text.config(state=NORMAL) # pyright: ignore[reportArgumentType]
+            self.chat_text.insert(END, message.split(": ")[0] + f"： {friend}\n")
+            def add_friend(friend):
+                with open(os.path.join(myself_path, "addressBook", f"{time.time()}.zip"), "wb") as f:
+                    f.write(base64.b64decode(friend.split(": ")[1]))
+            self.chat_text.tag_bind("url", "<Button-1>", lambda e, f=friend: add_friend(f))
             self.chat_text.see(END)
             self.chat_text.config(state=DISABLED) # pyright: ignore[reportArgumentType]
 
@@ -429,7 +531,7 @@ if __name__ == "__main__":
 
     # 主线程从队列中获取消息并处理
     app = ttk.Window(themename="cosmo")
-    ui = WeChatUI(app)
+    ui = OleanderChatUI(app)
     app.after(100, main)
     app.mainloop()
     stop_event.set()
