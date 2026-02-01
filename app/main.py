@@ -325,7 +325,7 @@ class OleanderChatUI:
         if not this_friend:
             messagebox.showerror("错误", "未找到好友信息")
             return
-        friend_choose = tk.Tk()
+        friend_choose = tk.Toplevel(self.root)
         friend_choose.title("推送好友")
         friend_choose.geometry("300x150")
         friend_choose.resizable(False, False)
@@ -373,7 +373,7 @@ class OleanderChatUI:
                         "public_key": friend_to_send["public_key"]
                     }
                     messagebox.showinfo("成功", f"已将好友 {selected_friend_name} 推送给 {this_friend['name']}")
-                    with open(os.path.join(myself_path, "addressBook", f"{connect.friends[friend_to_send['user_id']]["file"]}"), "rb") as f:
+                    with open(os.path.join(myself_path, "addressBook", f"{connect.friends[friend_to_send['user_id']]['file']}"), "rb") as f:
                         file_data = base64.b64encode(f.read()).decode('utf-8')
                     message = f"{file_data} card(friend) {friend_info_to_send['name']}"
                     connect.send_message(this_friend["user_id"], this_friend["public_key"], message)
